@@ -17,7 +17,7 @@ import android.widget.ToggleButton;
  * HelloIOIOPower example.
  */
 public class MainActivity extends IOIOActivity {
-	private ToggleButton button_;
+	private ToggleButton button;
 
 	/**
 	 * Called when the activity is first created. Here we normally initialize
@@ -27,7 +27,7 @@ public class MainActivity extends IOIOActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		button_ = (ToggleButton) findViewById(R.id.button);
+		button = (ToggleButton) findViewById(R.id.button);
 	}
 
 	/**
@@ -39,7 +39,8 @@ public class MainActivity extends IOIOActivity {
 	 */
 	class Looper extends BaseIOIOLooper {
 		/** The on-board LED. */
-		private DigitalOutput led_;
+		private DigitalOutput led;
+		private DigitalOutput lock;
 
 		/**
 		 * Called every time a connection with IOIO has been established.
@@ -52,7 +53,8 @@ public class MainActivity extends IOIOActivity {
 		 */
 		@Override
 		protected void setup() throws ConnectionLostException {
-			led_ = ioio_.openDigitalOutput(0, true);
+			led = ioio_.openDigitalOutput(0, true);
+			lock = ioio_.openDigitalOutput(7, DigitalOutput.Spec.Mode.OPEN_DRAIN, false);
 		}
 
 		/**
@@ -65,7 +67,9 @@ public class MainActivity extends IOIOActivity {
 		 */
 		@Override
 		public void loop() throws ConnectionLostException {
-			led_.write(!button_.isChecked());
+			led.write(!button.isChecked());
+			lock.write(!button.isChecked());
+			
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
