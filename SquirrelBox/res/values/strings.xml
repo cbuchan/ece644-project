@@ -4,5 +4,8 @@
     <string name="app_name">SquirrelBox</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="welcome">Welcome to Squirrel Box!</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
 
 </resources>
