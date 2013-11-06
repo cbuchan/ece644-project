@@ -5,5 +5,4 @@ public class Reservation {
 	int boxId;
 	User sender;
 	User receiver;
-	
 }
