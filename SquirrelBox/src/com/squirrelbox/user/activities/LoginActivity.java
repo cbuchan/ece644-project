@@ -1,4 +1,8 @@
-package com.squirrelbox.user;
+package com.squirrelbox.user.activities;
+
+import com.squirrelbox.user.R;
+import com.squirrelbox.user.R.id;
+import com.squirrelbox.user.R.layout;
 
 import android.app.Activity;
 import android.content.Intent;

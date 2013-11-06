@@ -20,7 +20,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.squirrelbox.user.LoginActivity"
+            android:name="com.squirrelbox.user.activities.LoginActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,11 +29,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.squirrelbox.user.MainActivity"
+            android:name="com.squirrelbox.user.activities.MainActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.squirrelbox.user.BeamActivity"
+            android:name="com.squirrelbox.user.activities.BeamActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop" >
             <intent-filter>
