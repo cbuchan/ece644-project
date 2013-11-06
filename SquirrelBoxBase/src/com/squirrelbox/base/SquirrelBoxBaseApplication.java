@@ -9,7 +9,7 @@ public class SquirrelBoxBaseApplication extends Application {
 
 	private static final String TAG = SquirrelBoxBaseApplication.class.getSimpleName();
 
-	public static String SERVER_URL;
+	public static String SERVER_URL = "http://ece644-authsite.herokuapp.com";
 	public static boolean IS_LOCAL;
 
 	// Providers
