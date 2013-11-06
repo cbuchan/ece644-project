@@ -6,11 +6,30 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    tools:context=".BoxMainActivity" >
 
     <TextView
+        android:id="@+id/box_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:layout_marginBottom="15dp"
+        android:text="This will display the box status" />
+    
+    <TextView 
+        android:id="@+id/user_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_below="@id/box_status"
+        android:text="This is the user ID" />
+    
+    <TextView 
+        android:id="@+id/NFC_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_below="@id/user_id"
+        android:text="This will display the message received from the user app" />
+    "
 
 </RelativeLayout>

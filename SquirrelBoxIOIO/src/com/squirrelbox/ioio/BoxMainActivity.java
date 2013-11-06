@@ -16,7 +16,7 @@ import android.widget.ToggleButton;
  * the {@link IOIOActivity} class. For a more advanced use case, see the
  * HelloIOIOPower example.
  */
-public class MainActivity extends IOIOActivity {
+public class BoxMainActivity extends IOIOActivity {
 	private ToggleButton button;
 
 	/**
