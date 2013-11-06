@@ -2,6 +2,10 @@ package com.squirrelbox.ioio;
 
 import java.nio.charset.Charset;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.squirrelbox.base.api.NetworkProvider;
 import com.squirrelbox.ioio.R;
 
 import android.app.Activity;
@@ -21,16 +25,21 @@ public class NFCReceiveActivity extends Activity implements CreateNdefMessageCal
 	public final static String TAG = NFCReceiveActivity.class.getName();
 	
 	NfcAdapter mNfcAdapter;
-	TextView textView;
-
+	TextView box_status;
+	TextView user_id;
+	TextView nfc_message;
+	SquirrelBoxIOIOApplication application;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		application = (SquirrelBoxIOIOApplication) getApplication();
+		
 		setContentView(R.layout.activity_main);
-		 TextView box_status = (TextView) findViewById(R.id.box_status);
-		 TextView user_id = (TextView) findViewById(R.id.user_id);
-		 TextView nfc_message = (TextView) findViewById(R.id.NFC_message);
+		box_status = (TextView) findViewById(R.id.box_status);
+		user_id = (TextView) findViewById(R.id.user_id);
+	    nfc_message = (TextView) findViewById(R.id.NFC_message);
 		
 		// Check for available NFC Adapter
 		mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -82,9 +91,20 @@ public class NFCReceiveActivity extends Activity implements CreateNdefMessageCal
 		// only one message sent during the beam
 		NdefMessage msg = (NdefMessage) rawMsgs[0];
 		// record 0 contains the MIME type, record 1 is the AAR, if present
-		textView.setText(new String(msg.getRecords()[0].getPayload()));
-		
+		String message = new String(msg.getRecords()[0].getPayload());
+		JSONObject json_message;
+		try {
+			json_message = new JSONObject(message);
+			nfc_message.setText(json_message.toString());
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		/// TODO: Verify credentials with server
+		NetworkProvider n = application.getNetworkProvider();
+		
 		/// TODO: Open box if they're valid
+		
 	}
 }
