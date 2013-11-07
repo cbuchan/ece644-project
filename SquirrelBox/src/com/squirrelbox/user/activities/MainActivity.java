@@ -2,9 +2,8 @@ package com.squirrelbox.user.activities;
 
 import java.nio.charset.Charset;
 
-import com.squirrelbox.user.R;
-import com.squirrelbox.user.R.id;
-import com.squirrelbox.user.R.layout;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.nfc.NdefMessage;
@@ -15,6 +14,8 @@ import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squirrelbox.user.R;
 
 public class MainActivity extends Activity implements CreateNdefMessageCallback {
 
@@ -41,7 +42,14 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 
 	@Override
 	public NdefMessage createNdefMessage(NfcEvent event) {
-		String text = ("Beam me up, Android!\n\n" + "Beam Time: " + System.currentTimeMillis());
+		JSONObject testObject = new JSONObject();
+		try {
+			testObject.put("text", "hello world!");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		String text = (testObject.toString());
 		NdefMessage msg = new NdefMessage(new NdefRecord[] { createMimeRecord("application/com.squirrelbox.user",
 				text.getBytes()) });
 		return msg;

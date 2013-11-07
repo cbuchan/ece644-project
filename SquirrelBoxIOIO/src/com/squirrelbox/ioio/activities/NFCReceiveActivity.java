@@ -1,46 +1,42 @@
-package com.squirrelbox.ioio;
-
-import java.nio.charset.Charset;
+package com.squirrelbox.ioio.activities;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.squirrelbox.base.api.NetworkProvider;
-import com.squirrelbox.ioio.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
-import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class NFCReceiveActivity extends Activity implements CreateNdefMessageCallback {
+import com.squirrelbox.base.api.NetworkProvider;
+import com.squirrelbox.ioio.R;
+import com.squirrelbox.ioio.SquirrelBoxIOIOApplication;
+
+public class NFCReceiveActivity extends Activity {
 	public final static String TAG = NFCReceiveActivity.class.getName();
-	
+
 	NfcAdapter mNfcAdapter;
 	TextView box_status;
 	TextView user_id;
 	TextView nfc_message;
 	SquirrelBoxIOIOApplication application;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		application = (SquirrelBoxIOIOApplication) getApplication();
-		
+
 		setContentView(R.layout.activity_main);
 		box_status = (TextView) findViewById(R.id.box_status);
 		user_id = (TextView) findViewById(R.id.user_id);
-	    nfc_message = (TextView) findViewById(R.id.NFC_message);
-		
+		nfc_message = (TextView) findViewById(R.id.NFC_message);
+
 		// Check for available NFC Adapter
 		mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 		if (mNfcAdapter == null) {
@@ -48,23 +44,6 @@ public class NFCReceiveActivity extends Activity implements CreateNdefMessageCal
 			finish();
 			return;
 		}
-		// Register callback
-		mNfcAdapter.setNdefPushMessageCallback(this, this);
-	}
-
-	@Override
-	public NdefMessage createNdefMessage(NfcEvent event) {
-		String text = ("Beam me up, Android!\n\n" + "Beam Time: " + System.currentTimeMillis());
-		NdefMessage msg = new NdefMessage(new NdefRecord[] { createMimeRecord("application/com.squirrelbox.user",
-				text.getBytes()) });
-		return msg;
-
-	}
-
-	public NdefRecord createMimeRecord(String mimeType, byte[] payload) {
-		byte[] mimeBytes = mimeType.getBytes(Charset.forName("US-ASCII"));
-		NdefRecord mimeRecord = new NdefRecord(NdefRecord.TNF_MIME_MEDIA, mimeBytes, new byte[0], payload);
-		return mimeRecord;
 	}
 
 	@Override
@@ -93,18 +72,19 @@ public class NFCReceiveActivity extends Activity implements CreateNdefMessageCal
 		// record 0 contains the MIME type, record 1 is the AAR, if present
 		String message = new String(msg.getRecords()[0].getPayload());
 		JSONObject json_message;
+
+		nfc_message.setText(message);
 		try {
 			json_message = new JSONObject(message);
-			nfc_message.setText(json_message.toString());
+			nfc_message.setText(json_message.optString("text"));
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		/// TODO: Verify credentials with server
+		// / TODO: Verify credentials with server
 		NetworkProvider n = application.getNetworkProvider();
-		
-		/// TODO: Open box if they're valid
-		
+
+		// / TODO: Open box if they're valid
+
 	}
 }

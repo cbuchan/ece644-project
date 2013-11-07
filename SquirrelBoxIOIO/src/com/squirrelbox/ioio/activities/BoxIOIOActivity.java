@@ -1,4 +1,8 @@
-package com.squirrelbox.ioio;
+package com.squirrelbox.ioio.activities;
+
+import com.squirrelbox.ioio.R;
+import com.squirrelbox.ioio.R.id;
+import com.squirrelbox.ioio.R.layout;
 
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
@@ -16,7 +20,7 @@ import android.widget.ToggleButton;
  * the {@link IOIOActivity} class. For a more advanced use case, see the
  * HelloIOIOPower example.
  */
-public class BoxMainActivity extends IOIOActivity {
+public class BoxIOIOActivity extends IOIOActivity {
 	private ToggleButton button;
 
 	/**

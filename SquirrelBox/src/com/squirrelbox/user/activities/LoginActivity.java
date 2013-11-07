@@ -47,15 +47,19 @@ public class LoginActivity extends Activity {
 		String username = usernameEditText.getText().toString();
 		String password = passwordEditText.getText().toString();
 
-		networkProvider.postLoginRequestToNetwork(username, password, new DataCallbackHandler() {
-			@Override
-			public void onTokenSuccess(Token token) {
-				// Do something
+		Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+		startActivity(intent);
 
-				Intent intent = new Intent(LoginActivity.this, BeamActivity.class);
-				startActivity(intent);
-			}
-		});
+		// networkProvider.postLoginRequestToNetwork(username, password, new
+		// DataCallbackHandler() {
+		// @Override
+		// public void onTokenSuccess(Token token) {
+		// // Do something
+		//
+		// Intent intent = new Intent(LoginActivity.this, BeamActivity.class);
+		// startActivity(intent);
+		// }
+		// });
 	}
 
 }

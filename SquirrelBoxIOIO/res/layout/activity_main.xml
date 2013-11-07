@@ -14,22 +14,30 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="15dp"
         android:text="This will display the box status" />
-    
-    <TextView 
+
+    <TextView
         android:id="@+id/user_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
         android:layout_below="@id/box_status"
+        android:layout_marginBottom="15dp"
         android:text="This is the user ID" />
-    
-    <TextView 
+
+    <TextView
         android:id="@+id/NFC_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
         android:layout_below="@id/user_id"
+        android:layout_marginBottom="15dp"
         android:text="This will display the message received from the user app" />
-    "
+
+    <Button
+        android:id="@+id/button_IOIO"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/NFC_message"
+        android:layout_alignRight="@+id/NFC_message"
+        android:layout_below="@+id/NFC_message"
+        android:text="Begin IOIO Activity" />
 
 </RelativeLayout>
