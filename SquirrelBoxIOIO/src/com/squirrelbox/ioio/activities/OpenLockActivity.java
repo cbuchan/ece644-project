@@ -1,16 +1,19 @@
 package com.squirrelbox.ioio.activities;
 
-import com.squirrelbox.ioio.R;
-import com.squirrelbox.ioio.R.id;
-import com.squirrelbox.ioio.R.layout;
-
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
+
+import com.squirrelbox.ioio.R;
+import com.squirrelbox.ioio.R.id;
+import com.squirrelbox.ioio.R.layout;
+
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ToggleButton;
+import android.util.Log;
+import android.widget.TextView;
 
 /**
  * This is the main activity of the HelloIOIO example application.
@@ -20,8 +23,9 @@ import android.widget.ToggleButton;
  * the {@link IOIOActivity} class. For a more advanced use case, see the
  * HelloIOIOPower example.
  */
-public class BoxIOIOActivity extends IOIOActivity {
-	private ToggleButton button;
+public class OpenLockActivity extends IOIOActivity {
+	private int timeout = 5000;
+	private TextView message;
 
 	/**
 	 * Called when the activity is first created. Here we normally initialize
@@ -30,8 +34,9 @@ public class BoxIOIOActivity extends IOIOActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
-		button = (ToggleButton) findViewById(R.id.button);
+		Log.i("OpenLock", "OnCreate");
+		setContentView(R.layout.open_lock);
+		message = (TextView)findViewById(R.id.countdown_status);
 	}
 
 	/**
@@ -57,6 +62,7 @@ public class BoxIOIOActivity extends IOIOActivity {
 		 */
 		@Override
 		protected void setup() throws ConnectionLostException {
+			Log.i("HelloIOIO looper", "setup");
 			led = ioio_.openDigitalOutput(0, true);
 			lock = ioio_.openDigitalOutput(7, DigitalOutput.Spec.Mode.OPEN_DRAIN, false);
 		}
@@ -71,12 +77,23 @@ public class BoxIOIOActivity extends IOIOActivity {
 		 */
 		@Override
 		public void loop() throws ConnectionLostException {
-			led.write(!button.isChecked());
-			lock.write(!button.isChecked());
+			led.write(true);
+			lock.write(true);
+			
+			message.setText("Box will lock in "+timeout/100+" seconds");
+			
 			
 			try {
-				Thread.sleep(100);
+			Thread.sleep(100);
 			} catch (InterruptedException e) {
+			}
+			
+			timeout=timeout-100;
+			if (timeout<=0) {
+				/// launch home screen
+				Log.i("OpenLock", "launching main activity");
+				Intent intent = new Intent(OpenLockActivity.this, BoxMainActivity.class);
+				startActivity(intent);
 			}
 		}
 	}

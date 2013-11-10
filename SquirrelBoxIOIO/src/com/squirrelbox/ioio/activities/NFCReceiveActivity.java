@@ -31,8 +31,8 @@ public class NFCReceiveActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		application = (SquirrelBoxIOIOApplication) getApplication();
-
-		setContentView(R.layout.activity_main);
+		
+		setContentView(R.layout.nfc);
 		box_status = (TextView) findViewById(R.id.box_status);
 		user_id = (TextView) findViewById(R.id.user_id);
 		nfc_message = (TextView) findViewById(R.id.NFC_message);
@@ -83,8 +83,9 @@ public class NFCReceiveActivity extends Activity {
 
 		// / TODO: Verify credentials with server
 		NetworkProvider n = application.getNetworkProvider();
-
-		// / TODO: Open box if they're valid
-
+		
+		/// TODO: Open box if they're valid
+	    Intent open_lock_intent = new Intent(this, OpenLockActivity.class);
+	    startActivity(open_lock_intent);
 	}
 }
