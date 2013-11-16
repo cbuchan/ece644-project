@@ -37,6 +37,8 @@ public class SquirrelBoxRestClient {
 	 *********************************************************************/
 	public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
 		Log.i(TAG, "Request (GET): " + getAbsoluteUrl(url));
+		Log.i(TAG, "Params: " + params.toString());
+
 		client.get(getAbsoluteUrl(url), params, responseHandler);
 	}
 

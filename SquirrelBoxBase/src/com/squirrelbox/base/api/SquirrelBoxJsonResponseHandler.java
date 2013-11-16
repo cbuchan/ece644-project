@@ -60,36 +60,6 @@ public class SquirrelBoxJsonResponseHandler extends JsonHttpResponseHandler {
 
 	}
 
-	@Override
-	public void handleFailureMessage(Throwable e, String responseBody) {
-		Log.e(TAG, "Failure message: " + responseBody);
-		e.printStackTrace();
-
-		if (responseBody != null) {
-			// Try to parse errors
-			try {
-				JSONObject response = new JSONObject(responseBody);
-				String errorMessage = JSONParser.parseErrors(response);
-
-				if (errorMessage != null) {
-					dataHandler.onFailure(errorMessage);
-				} else if (response.has("error")) {
-					errorMessage = "Error: " + response.getString("error");
-					dataHandler.onFailure(errorMessage);
-					toast(errorMessage);
-				} else {
-					dataHandler.onFailure("Error: failed network request.");
-				}
-			} catch (JSONException e1) {
-				e1.printStackTrace();
-				dataHandler.onFailure("Error: failed to parse errors.");
-			}
-		} else {
-			dataHandler.onFailure("Error: no response.");
-		}
-
-	}
-
 	public void processResponse(JSONObject rawResponse) throws JSONException, ParseException {
 	};
 

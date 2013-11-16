@@ -13,22 +13,12 @@ public class JSONParser {
 
 	public static Token parseToken(JSONObject tokenResponseObject) throws JSONException {
 		Token token = new Token();
-		User user = new User();
 
-		if (tokenResponseObject.has("authentication_token")) {
-			token.setAuthToken(tokenResponseObject.optString("authentication_token"));
+		if (tokenResponseObject.has("auth_token")) {
+			token.setAuthToken(tokenResponseObject.optString("auth_token"));
 		}
 
-		JSONObject userJson = tokenResponseObject.optJSONObject("user");
-		if (userJson != null && !userJson.has("message")) {
-
-			user = parseUser(tokenResponseObject);
-			token.setUser(user);
-
-			return token;
-		} else {
-			return null;
-		}
+		return token;
 	}
 
 	public static User parseUser(JSONObject userJsonWrapper) throws JSONException {

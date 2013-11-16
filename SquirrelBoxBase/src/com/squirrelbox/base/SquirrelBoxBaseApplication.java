@@ -9,7 +9,7 @@ public class SquirrelBoxBaseApplication extends Application {
 
 	private static final String TAG = SquirrelBoxBaseApplication.class.getSimpleName();
 
-	public static String SERVER_URL = "http://ece644-authsite.herokuapp.com";
+	public static String SERVER_URL = "http://squirrelauth.herokuapp.com";
 	public static boolean IS_LOCAL;
 
 	// Providers
@@ -17,7 +17,7 @@ public class SquirrelBoxBaseApplication extends Application {
 
 	public void onCreate() {
 		super.onCreate();
-		Log.i(TAG, "Creating DormDealBaseApplication");
+		Log.i(TAG, "Creating SquirrelBoxBaseApplication");
 
 		networkProvider = new NetworkProvider(this);
 	}

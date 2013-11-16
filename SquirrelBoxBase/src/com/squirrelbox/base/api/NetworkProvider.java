@@ -23,7 +23,7 @@ import com.squirrelbox.base.data.model.User;
 public class NetworkProvider {
 
 	private static final String TAG = NetworkProvider.class.getSimpleName();
-	public static final String API_VERSION = "/api/v1";
+	public static final String API_VERSION = "";
 	private Context context;
 	private JSONBuilder jsonBuilder;
 
@@ -61,58 +61,102 @@ public class NetworkProvider {
 				});
 	}
 
+	public void getBoxStatusFromNetwork(final DataCallbackHandler dataHandler) {
+		SquirrelBoxRestClient.authGet(API_VERSION + "/box_status.json", context, null,
+				new SquirrelBoxJsonResponseHandler(context, dataHandler) {
+					@Override
+					public void processResponse(JSONObject rawResponse) throws JSONException {
+						// Parse box status
+						dataHandler.onBoxStatusSuccess();
+					}
+				});
+	}
+
 	/*********************************************************************
 	 * POST REQUESTS
 	 *********************************************************************/
 
 	public void postLoginRequestToNetwork(String username, String password, final DataCallbackHandler dataHandler) {
 		RequestParams params = new RequestParams();
-		params.put("email", username);
+		params.put("username", username);
 		params.put("password", password);
-		postTokenRequest(params, dataHandler);
-	}
 
-	public void postFacebookLoginRequestToNetwork(String facebookToken, final DataCallbackHandler dataHandler) {
-		RequestParams params = new RequestParams();
-		params.put("fb_token", facebookToken);
-		postTokenRequest(params, dataHandler);
-	}
-
-	private void postTokenRequest(RequestParams params, final DataCallbackHandler dataHandler) {
-		SquirrelBoxRestClient.post(API_VERSION + "/tokens", params, new SquirrelBoxJsonResponseHandler(context, dataHandler) {
+		SquirrelBoxRestClient.post(API_VERSION + "/authenticate", params, new SquirrelBoxJsonResponseHandler(context,
+				dataHandler) {
 			@Override
 			public void processResponse(JSONObject rawResponse) throws JSONException {
 				Token token;
 				token = JSONParser.parseToken(rawResponse);
-				dataHandler.onTokenSuccess(token);
+				if (token.getAuthToken() != null) {
+					dataHandler.onTokenSuccess(token);
+				} else {
+					dataHandler.onFailure("Unable to get auth token");
+				}
 			}
 		});
 	}
 
 	// Creates a new user
-	public void postUserToNetwork(User user, final DataCallbackHandler dataHandler) {
+	public void postUserToNetwork(String username, String password, final DataCallbackHandler dataHandler) {
+		RequestParams params = new RequestParams();
+		params.put("username", username);
+		params.put("password", password);
 
-		try {
-			JSONObject userRequestJson = jsonBuilder.createUserJSON(user);
-			SquirrelBoxRestClient.post(API_VERSION + "/users.json", context, userRequestJson, "application/json",
-					new SquirrelBoxJsonResponseHandler(context, dataHandler, "user") {
-						@Override
-						public void processResponse(JSONObject rawResponse) throws JSONException {
-							Log.d(TAG, "" + rawResponse);
-							Token token = JSONParser.parseToken(rawResponse);
-							dataHandler.onTokenSuccess(token);
-						}
-					});
+		SquirrelBoxRestClient.post(API_VERSION + "/register", params, new SquirrelBoxJsonResponseHandler(context,
+				dataHandler) {
+			@Override
+			public void processResponse(JSONObject rawResponse) throws JSONException {
+				Token token;
+				token = JSONParser.parseToken(rawResponse);
+				if (token.getAuthToken() != null) {
+					dataHandler.onTokenSuccess(token);
+				} else {
+					dataHandler.onFailure("Unable to get auth token");
+				}
+			}
+		});
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		// SquirrelBoxRestClient.post(API_VERSION + "/register", context,
+		// userRequestJson, "application/json",
+		// new SquirrelBoxJsonResponseHandler(context, dataHandler, "user") {
+		// @Override
+		// public void processResponse(JSONObject rawResponse) throws
+		// JSONException {
+		// Log.d(TAG, "" + rawResponse);
+		// Token token = JSONParser.parseToken(rawResponse);
+		// dataHandler.onTokenSuccess(token);
+		// }
+		// });
+	}
+
+	public void postReservationToNetwork(String username, String description, final DataCallbackHandler dataHandler) {
+		RequestParams params = new RequestParams();
+		SquirrelBoxRestClient.authPost(API_VERSION + "/make_reservation.json", context, params,
+				new SquirrelBoxJsonResponseHandler(context, dataHandler, "user") {
+					@Override
+					public void processResponse(JSONObject rawResponse) throws JSONException {
+						// Parse reservation success
+						dataHandler.onReservationSuccess();
+					}
+				});
+	}
+
+	public void postRelinquishToNetwork(final DataCallbackHandler dataHandler) {
+		RequestParams params = new RequestParams();
+		SquirrelBoxRestClient.authPost(API_VERSION + "/make_reservation.json", context, params,
+				new SquirrelBoxJsonResponseHandler(context, dataHandler, "user") {
+					@Override
+					public void processResponse(JSONObject rawResponse) throws JSONException {
+						// Parse relinquish success
+						dataHandler.onRelinquishSuccess();
+					}
+				});
 	}
 
 	/*********************************************************************
 	 * PUT REQUESTS
 	 *********************************************************************/
-	
+
 	/*********************************************************************
 	 * HELPER FUNCTIONS
 	 *********************************************************************/
