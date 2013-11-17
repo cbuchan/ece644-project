@@ -2,6 +2,7 @@ package com.squirrelbox.base.api;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,12 +12,12 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
 
 import com.loopj.android.http.PersistentCookieStore;
 import com.loopj.android.http.RequestParams;
 import com.squirrelbox.base.SquirrelBoxBaseApplication;
 import com.squirrelbox.base.data.DataCallbackHandler;
+import com.squirrelbox.base.data.model.Box;
 import com.squirrelbox.base.data.model.Token;
 import com.squirrelbox.base.data.model.User;
 
@@ -62,14 +63,15 @@ public class NetworkProvider {
 	}
 
 	public void getBoxStatusFromNetwork(final DataCallbackHandler dataHandler) {
-		SquirrelBoxRestClient.authGet(API_VERSION + "/box_status.json", context, null,
-				new SquirrelBoxJsonResponseHandler(context, dataHandler) {
-					@Override
-					public void processResponse(JSONObject rawResponse) throws JSONException {
-						// Parse box status
-						dataHandler.onBoxStatusSuccess();
-					}
-				});
+		SquirrelBoxRestClient.authPost(API_VERSION + "/box_status", context, null, new SquirrelBoxJsonResponseHandler(
+				context, dataHandler) {
+			@Override
+			public void processResponse(JSONObject rawResponse) throws JSONException {
+				// Parse box status
+				ArrayList<Box> boxes = JSONParser.parseBoxes(rawResponse);
+				dataHandler.onBoxStatusSuccess(boxes);
+			}
+		});
 	}
 
 	/*********************************************************************
@@ -116,22 +118,11 @@ public class NetworkProvider {
 			}
 		});
 
-		// SquirrelBoxRestClient.post(API_VERSION + "/register", context,
-		// userRequestJson, "application/json",
-		// new SquirrelBoxJsonResponseHandler(context, dataHandler, "user") {
-		// @Override
-		// public void processResponse(JSONObject rawResponse) throws
-		// JSONException {
-		// Log.d(TAG, "" + rawResponse);
-		// Token token = JSONParser.parseToken(rawResponse);
-		// dataHandler.onTokenSuccess(token);
-		// }
-		// });
 	}
 
 	public void postReservationToNetwork(String username, String description, final DataCallbackHandler dataHandler) {
 		RequestParams params = new RequestParams();
-		SquirrelBoxRestClient.authPost(API_VERSION + "/make_reservation.json", context, params,
+		SquirrelBoxRestClient.authPost(API_VERSION + "/make_reservation", context, params,
 				new SquirrelBoxJsonResponseHandler(context, dataHandler, "user") {
 					@Override
 					public void processResponse(JSONObject rawResponse) throws JSONException {

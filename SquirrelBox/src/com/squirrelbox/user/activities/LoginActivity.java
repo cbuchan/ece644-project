@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -19,6 +20,8 @@ import com.squirrelbox.user.R;
 import com.squirrelbox.user.SquirrelBoxUserApplication;
 
 public class LoginActivity extends Activity {
+
+	public final static String TAG = LoginActivity.class.getName();
 
 	private SquirrelBoxUserApplication application;
 	private NetworkProvider networkProvider;
@@ -72,7 +75,7 @@ public class LoginActivity extends Activity {
 			networkProvider.postLoginRequestToNetwork(username, password, new DataCallbackHandler() {
 				@Override
 				public void onTokenSuccess(Token token) {
-					// Do something
+					Log.e(TAG, "Token: " + token.getAuthToken());
 
 					token.getAuthToken();
 					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(application);
