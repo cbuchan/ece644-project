@@ -12,6 +12,7 @@ import com.squirrelbox.ioio.R.layout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -25,6 +26,7 @@ import android.widget.TextView;
  */
 public class OpenLockActivity extends IOIOActivity {
 	private int timeout = 5000;
+	private boolean timeup = false;
 	private TextView message;
 
 	/**
@@ -37,8 +39,44 @@ public class OpenLockActivity extends IOIOActivity {
 		Log.i("OpenLock", "OnCreate");
 		setContentView(R.layout.open_lock);
 		message = (TextView)findViewById(R.id.countdown_status);
+		
+		Handler handler = new Handler();
+		handler.post(new Runnable() {
+
+			@Override
+			public void run() {
+				Log.i("handler", "run");
+				while (timeout>=0) {
+					timeout-=100;
+				
+					message.setText("Box will lock in "+((timeout/1000)+1)+" seconds");
+					Log.i("handler", "set text complete, timeout is "+timeout);
+					try {
+						Log.i("handler", "waiting");
+						Thread.sleep(100);
+						Log.i("handler", "done waiting");
+					} catch (InterruptedException e) {
+					
+					}
+				}
+				
+				timeup = true;
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+				/// launch home screen
+				Log.i("OpenLock", "launching main activity");
+				Intent intent = new Intent(OpenLockActivity.this, BoxMainActivity.class);
+				startActivity(intent);
+			
+			}
+		});
 	}
 
+	
+	
+	
 	/**
 	 * This is the thread on which all the IOIO activity happens. It will be run
 	 * every time the application is resumed and aborted when it is paused. The
@@ -77,23 +115,12 @@ public class OpenLockActivity extends IOIOActivity {
 		 */
 		@Override
 		public void loop() throws ConnectionLostException {
-			led.write(true);
-			lock.write(true);
-			
-			message.setText("Box will lock in "+timeout/100+" seconds");
-			
+			led.write(!timeup);
+			lock.write(!timeup);			
 			
 			try {
 			Thread.sleep(100);
 			} catch (InterruptedException e) {
-			}
-			
-			timeout=timeout-100;
-			if (timeout<=0) {
-				/// launch home screen
-				Log.i("OpenLock", "launching main activity");
-				Intent intent = new Intent(OpenLockActivity.this, BoxMainActivity.class);
-				startActivity(intent);
 			}
 		}
 	}

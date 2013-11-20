@@ -18,5 +18,12 @@
         android:layout_gravity="center"
         android:text="ToggleButton" >
     </ToggleButton>
+    
+    <TextView 
+      	android:id="@+id/test"
+      	android:layout_width="fill_parent"
+      	android:layout_height="wrap_content"
+      	android:paddingTop="10dp"
+      	android:text="This is a test: 5"> </TextView>
 
 </LinearLayout>

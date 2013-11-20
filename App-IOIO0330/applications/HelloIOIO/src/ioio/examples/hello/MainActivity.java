@@ -6,6 +6,8 @@ import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 /**
@@ -18,6 +20,8 @@ import android.widget.ToggleButton;
  */
 public class MainActivity extends IOIOActivity {
 	private ToggleButton button;
+	private TextView test;
+	private int countdown;
 
 	/**
 	 * Called when the activity is first created. Here we normally initialize
@@ -28,6 +32,11 @@ public class MainActivity extends IOIOActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		button = (ToggleButton) findViewById(R.id.button);
+		test = (TextView) findViewById(R.id.test);
+	}
+	
+	public void updateText() {
+		test.setText("this is a test: "+(countdown/1000+1));
 	}
 
 	/**
@@ -55,6 +64,8 @@ public class MainActivity extends IOIOActivity {
 		protected void setup() throws ConnectionLostException {
 			led = ioio_.openDigitalOutput(0, true);
 			lock = ioio_.openDigitalOutput(7, DigitalOutput.Spec.Mode.OPEN_DRAIN, false);
+			Log.i("Ioio setup", "countdown = "+countdown);
+			countdown=5000;
 		}
 
 		/**
@@ -69,6 +80,10 @@ public class MainActivity extends IOIOActivity {
 		public void loop() throws ConnectionLostException {
 			led.write(!button.isChecked());
 			lock.write(!button.isChecked());
+			countdown-=100;
+			if (countdown<=0) countdown = 5000;
+			Log.i("Ioio loop", "countdown = "+countdown);
+			updateText();
 			
 			try {
 				Thread.sleep(100);
