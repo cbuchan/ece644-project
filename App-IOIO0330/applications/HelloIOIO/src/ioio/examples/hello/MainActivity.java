@@ -86,7 +86,7 @@ public class MainActivity extends IOIOActivity {
 			updateText();
 			
 			try {
-				Thread.sleep(100);
+				Thread.sleep(100); 
 			} catch (InterruptedException e) {
 			}
 		}
