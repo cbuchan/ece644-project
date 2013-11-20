@@ -26,7 +26,7 @@ import android.widget.TextView;
  */
 public class OpenLockActivity extends IOIOActivity {
 	private int timeout = 5000;
-	private boolean timeup = false;
+	private volatile boolean timeup = false;
 	private TextView message;
 
 	/**
@@ -47,16 +47,12 @@ public class OpenLockActivity extends IOIOActivity {
 			public void run() {
 				Log.i("handler", "run");
 				while (timeout>=0) {
-					timeout-=100;
-				
+					timeout-=1000;
 					message.setText("Box will lock in "+((timeout/1000)+1)+" seconds");
 					Log.i("handler", "set text complete, timeout is "+timeout);
 					try {
-						Log.i("handler", "waiting");
-						Thread.sleep(100);
-						Log.i("handler", "done waiting");
+						Thread.sleep(1000);
 					} catch (InterruptedException e) {
-					
 					}
 				}
 				
@@ -115,8 +111,8 @@ public class OpenLockActivity extends IOIOActivity {
 		 */
 		@Override
 		public void loop() throws ConnectionLostException {
-			led.write(!timeup);
-			lock.write(!timeup);			
+			led.write(true);
+			lock.write(true);			
 			
 			try {
 			Thread.sleep(100);
