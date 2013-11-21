@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import com.loopj.android.http.PersistentCookieStore;
 import com.loopj.android.http.RequestParams;
@@ -20,6 +21,7 @@ import com.squirrelbox.base.data.DataCallbackHandler;
 import com.squirrelbox.base.data.model.Box;
 import com.squirrelbox.base.data.model.Token;
 import com.squirrelbox.base.data.model.User;
+import com.squirrelbox.base.util.Keys;
 
 public class NetworkProvider {
 
@@ -74,6 +76,33 @@ public class NetworkProvider {
 		});
 	}
 
+	public void getBoxSelfStatusFromNetwork(final DataCallbackHandler dataHandler) {
+		RequestParams params = new RequestParams();
+		params.put(Keys.AUTH_TOKEN, "1");
+		SquirrelBoxRestClient.post(API_VERSION + "/box_self_status", params, new SquirrelBoxJsonResponseHandler(
+				context, dataHandler) {
+			@Override
+			public void processResponse(JSONObject rawResponse) throws JSONException {
+				// Parse box status
+				Log.e(TAG, rawResponse.toString());
+				Box box = JSONParser.parseBox(rawResponse);
+				dataHandler.onBoxSelfStatusSuccess(box);
+			}
+		});
+	}
+
+	public void getUsersFromNetwork(final DataCallbackHandler dataHandler) {
+		SquirrelBoxRestClient.post(API_VERSION + "/list_users", null, new SquirrelBoxJsonResponseHandler(context,
+				dataHandler) {
+			@Override
+			public void processResponse(JSONObject rawResponse) throws JSONException {
+				// Parse box status
+				ArrayList<User> users = JSONParser.parseUsers(rawResponse);
+				dataHandler.onUserListSuccess(users);
+			}
+		});
+	}
+
 	/*********************************************************************
 	 * POST REQUESTS
 	 *********************************************************************/
@@ -120,13 +149,20 @@ public class NetworkProvider {
 
 	}
 
-	public void postReservationToNetwork(String username, String description, final DataCallbackHandler dataHandler) {
+	public void postReservationToNetwork(int boxId, int receiverId, String itemDescription,
+			final DataCallbackHandler dataHandler) {
 		RequestParams params = new RequestParams();
+		Log.i(TAG, "id " + receiverId);
+		params.put("box_id", "" + boxId);
+		params.put("receiver_id", "" + receiverId);
+		params.put("item_description", itemDescription);
+
 		SquirrelBoxRestClient.authPost(API_VERSION + "/make_reservation", context, params,
-				new SquirrelBoxJsonResponseHandler(context, dataHandler, "user") {
+				new SquirrelBoxJsonResponseHandler(context, dataHandler) {
 					@Override
 					public void processResponse(JSONObject rawResponse) throws JSONException {
 						// Parse reservation success
+						Log.i(TAG, rawResponse.toString());
 						dataHandler.onReservationSuccess();
 					}
 				});
@@ -134,14 +170,27 @@ public class NetworkProvider {
 
 	public void postRelinquishToNetwork(final DataCallbackHandler dataHandler) {
 		RequestParams params = new RequestParams();
-		SquirrelBoxRestClient.authPost(API_VERSION + "/make_reservation.json", context, params,
-				new SquirrelBoxJsonResponseHandler(context, dataHandler, "user") {
+		SquirrelBoxRestClient.authPost(API_VERSION + "/relinquish", context, params,
+				new SquirrelBoxJsonResponseHandler(context, dataHandler) {
 					@Override
 					public void processResponse(JSONObject rawResponse) throws JSONException {
 						// Parse relinquish success
 						dataHandler.onRelinquishSuccess();
 					}
 				});
+	}
+
+	public void postBoxRelinquishToNetwork(int boxId, final DataCallbackHandler dataHandler) {
+		RequestParams params = new RequestParams();
+		params.put("boxid", "" + boxId);
+		SquirrelBoxRestClient.post(API_VERSION + "/box_relinquish", params, new SquirrelBoxJsonResponseHandler(context,
+				dataHandler) {
+			@Override
+			public void processResponse(JSONObject rawResponse) throws JSONException {
+				// Parse relinquish success
+				dataHandler.onRelinquishSuccess();
+			}
+		});
 	}
 
 	/*********************************************************************

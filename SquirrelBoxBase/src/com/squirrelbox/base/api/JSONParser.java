@@ -23,43 +23,56 @@ public class JSONParser {
 
 		return token;
 	}
-	
-	public static ArrayList<Box> parseBoxes(JSONObject boxJsonWrapper) throws JSONException{
+
+	public static ArrayList<Box> parseBoxes(JSONObject boxJsonWrapper) throws JSONException {
 		ArrayList<Box> boxes = new ArrayList<Box>();
-		
+
 		JSONArray boxesJson = boxJsonWrapper.optJSONArray("boxes");
-		
-		if(boxesJson != null){
-			for(int i = 0; i < boxesJson.length(); i++){
+
+		if (boxesJson != null) {
+			for (int i = 0; i < boxesJson.length(); i++) {
 				Box box = parseBox(boxesJson.optJSONObject(i));
 				boxes.add(box);
 			}
 		}
-		
+
 		return boxes;
 	}
-	
-	public static Box parseBox(JSONObject boxJson){
+
+	public static Box parseBox(JSONObject boxJson) {
 		Box box = new Box();
-		
-		if(boxJson != null){
+
+		if (boxJson != null) {
 			box.setStatus(boxJson.optString("status"));
 			box.setPermission(boxJson.optString("permission"));
 			box.setId(boxJson.optInt("boxid"));
+			box.setKeyHolder(parseUser(boxJson.optJSONObject("user")));
 		}
-		
+
 		return box;
 	}
 
-	public static User parseUser(JSONObject userJsonWrapper) throws JSONException {
+	public static ArrayList<User> parseUsers(JSONObject userJsonWrapper) throws JSONException {
+		ArrayList<User> users = new ArrayList<User>();
+
+		JSONArray usersJson = userJsonWrapper.optJSONArray("users");
+
+		if (usersJson != null) {
+			for (int i = 0; i < usersJson.length(); i++) {
+				User user = parseUser(usersJson.optJSONObject(i));
+				users.add(user);
+			}
+		}
+
+		return users;
+	}
+
+	public static User parseUser(JSONObject userJson) {
 		User user = new User();
-		JSONObject userJson = userJsonWrapper.optJSONObject("user");
 
 		if (userJson != null) {
-			user.setUserId(userJson.optInt("id"));
-			user.setEmail(userJson.optString("email"));
-			user.setFirstName(userJson.optString("first_name"));
-			user.setLastName(userJson.optString("last_name"));
+			user.setUserId(userJson.optInt("uid"));
+			user.setUsername(userJson.optString("username"));
 		}
 
 		return user;

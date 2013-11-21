@@ -4,6 +4,15 @@ public class Box {
 	int id;
 	String status;
 	String permission;
+	User keyHolder;
+
+	public User getKeyHolder() {
+		return keyHolder;
+	}
+
+	public void setKeyHolder(User keyHolder) {
+		this.keyHolder = keyHolder;
+	}
 
 	public int getId() {
 		return id;

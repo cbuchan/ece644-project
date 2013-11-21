@@ -1,19 +1,26 @@
 package com.squirrelbox.ioio.activities;
 
+import java.util.ArrayList;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squirrelbox.base.api.NetworkProvider;
+import com.squirrelbox.base.data.DataCallbackHandler;
+import com.squirrelbox.base.data.model.Box;
+import com.squirrelbox.base.util.Keys;
 import com.squirrelbox.ioio.R;
 import com.squirrelbox.ioio.SquirrelBoxIOIOApplication;
 
@@ -25,14 +32,16 @@ public class NFCReceiveActivity extends Activity {
 	TextView user_id;
 	TextView nfc_message;
 	SquirrelBoxIOIOApplication application;
+	NetworkProvider networkProvider;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		application = (SquirrelBoxIOIOApplication) getApplication();
-		
-		setContentView(R.layout.nfc);
+		networkProvider = application.getNetworkProvider();
+
+		setContentView(R.layout.activity_nfc);
 		box_status = (TextView) findViewById(R.id.box_status);
 		user_id = (TextView) findViewById(R.id.user_id);
 		nfc_message = (TextView) findViewById(R.id.NFC_message);
@@ -72,20 +81,39 @@ public class NFCReceiveActivity extends Activity {
 		// record 0 contains the MIME type, record 1 is the AAR, if present
 		String message = new String(msg.getRecords()[0].getPayload());
 		JSONObject json_message;
-
 		nfc_message.setText(message);
+
 		try {
 			json_message = new JSONObject(message);
-			nfc_message.setText(json_message.optString("text"));
+			nfc_message.setText(json_message.optString(Keys.AUTH_TOKEN));
+
+			// / TODO: Verify credentials with server
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(application);
+			prefs.edit().putString(Keys.AUTH_TOKEN, json_message.optString(Keys.AUTH_TOKEN)).apply();
+
+			networkProvider.getBoxStatusFromNetwork(new DataCallbackHandler() {
+				@Override
+				public void onBoxStatusSuccess(ArrayList<Box> boxes) {
+					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(application);
+					prefs.edit().clear().apply();
+
+					Box box = boxes.get(0); // first box
+					if (box.getPermission().equals("granted")) {
+						// / TODO: Open box if they're valid
+						Log.i(TAG, "Permission granted!");
+						Intent openLockIntent = new Intent(NFCReceiveActivity.this, HelloIOIOActivity.class);
+						startActivity(openLockIntent);
+					} else {
+						Log.i(TAG, "Permission denied!");
+						Intent mainIntent = new Intent(NFCReceiveActivity.this, BoxMainActivity.class);
+						startActivity(mainIntent);
+					}
+				}
+			});
+
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 
-		// / TODO: Verify credentials with server
-		NetworkProvider n = application.getNetworkProvider();
-		
-		/// TODO: Open box if they're valid
-	    Intent open_lock_intent = new Intent(this, OpenLockActivity.class);
-	    startActivity(open_lock_intent);
 	}
 }

@@ -31,12 +31,16 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squirrelbox.base.api.NetworkProvider;
 import com.squirrelbox.base.data.DataCallbackHandler;
 import com.squirrelbox.base.data.model.Box;
+import com.squirrelbox.base.data.model.User;
+import com.squirrelbox.base.util.Keys;
 import com.squirrelbox.user.R;
 import com.squirrelbox.user.SquirrelBoxUserApplication;
 
@@ -50,8 +54,11 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 	NfcAdapter mNfcAdapter;
 	TextView boxStatusText;
 	Button reservationButton;
+	Button refreshButton;
 	ListView boxStatusListView;
 	BoxListAdapter boxStatusAdapter;
+	Spinner userSpinner;
+	UserSpinnerAdapter userSpinnerAdapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -63,6 +70,11 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 
 		boxStatusText = (TextView) findViewById(R.id.text_box_status);
 		reservationButton = (Button) findViewById(R.id.button_reservation);
+		refreshButton = (Button) findViewById(R.id.button_refresh);
+
+		userSpinner = (Spinner) findViewById(R.id.spinner_user_list);
+		userSpinnerAdapter = new UserSpinnerAdapter(this, new ArrayList<User>());
+		userSpinner.setAdapter(userSpinnerAdapter);
 
 		boxStatusListView = (ListView) findViewById(R.id.box_status_list);
 		boxStatusAdapter = new BoxListAdapter(this, new ArrayList<Box>());
@@ -90,24 +102,35 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 		}
 
 		// Check box status
-		networkProvider.getBoxStatusFromNetwork(new DataCallbackHandler() {
+		refreshBoxStatus();
+
+		// Get users
+		networkProvider.getUsersFromNetwork(new DataCallbackHandler() {
 			@Override
-			public void onBoxStatusSuccess(ArrayList<Box> boxes) {
-				boxStatusAdapter.addAll(boxes);
-				boxStatusAdapter.notifyDataSetChanged();
-				boxStatusText.setText("Successfully checked status");
+			public void onUserListSuccess(ArrayList<User> users) {
+				userSpinnerAdapter.addAll(users);
+				userSpinnerAdapter.notifyDataSetChanged();
 			}
 		});
 
 		reservationButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				networkProvider.postReservationToNetwork("steve", "book", new DataCallbackHandler() {
+				int receiverId = userSpinnerAdapter.getItem(userSpinner.getSelectedItemPosition()).getUserId();
+				networkProvider.postReservationToNetwork(1, receiverId, "book", new DataCallbackHandler() {
 					@Override
 					public void onReservationSuccess() {
 						boxStatusText.setText("Successfully posted reservation");
+						refreshBoxStatus();
 					}
 				});
+			}
+		});
+
+		refreshButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				refreshBoxStatus();
 			}
 		});
 	}
@@ -140,7 +163,8 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 	public NdefMessage createNdefMessage(NfcEvent event) {
 		JSONObject testObject = new JSONObject();
 		try {
-			testObject.put("text", "hello world!");
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(application);
+			testObject.put(Keys.AUTH_TOKEN, prefs.getString(Keys.AUTH_TOKEN, ""));
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -156,6 +180,19 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 		byte[] mimeBytes = mimeType.getBytes(Charset.forName("US-ASCII"));
 		NdefRecord mimeRecord = new NdefRecord(NdefRecord.TNF_MIME_MEDIA, mimeBytes, new byte[0], payload);
 		return mimeRecord;
+	}
+
+	private void refreshBoxStatus() {
+		// Check box status
+		networkProvider.getBoxStatusFromNetwork(new DataCallbackHandler() {
+			@Override
+			public void onBoxStatusSuccess(ArrayList<Box> boxes) {
+				boxStatusAdapter.clear();
+				boxStatusAdapter.addAll(boxes);
+				boxStatusAdapter.notifyDataSetChanged();
+				boxStatusText.setText("Successfully checked status");
+			}
+		});
 	}
 
 	class BoxListAdapter extends ArrayAdapter<Box> {
@@ -188,11 +225,59 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 				if (box.getPermission().equals("granted")) {
 					statusIcon.setImageResource(R.drawable.blue);
 				} else if (box.getPermission().equals("denied")) {
-					statusIcon.setImageResource(R.drawable.blue);
+					statusIcon.setImageResource(R.drawable.red);
 				}
 			} else if (box.getStatus().equals("available")) {
 				statusIcon.setImageResource(R.drawable.green);
 			}
+
+			return convertView;
+		}
+	}
+
+	class UserSpinnerAdapter extends ArrayAdapter<User> implements SpinnerAdapter {
+		private List<User> users;
+
+		public void addAll(ArrayList<User> users) {
+			for (User user : users) {
+				this.add(user);
+			}
+		}
+
+		public UserSpinnerAdapter(Context context, List<User> users) {
+			super(context, R.layout.list_item_user, users);
+			this.users = users;
+		}
+
+		@Override
+		public View getDropDownView(int position, View convertView, ViewGroup parent) {
+			if (convertView == null) {
+				LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+				convertView = inflater.inflate(R.layout.list_item_user, parent, false);
+			}
+
+			User user = getItem(position);
+			TextView userName = (TextView) convertView.findViewById(R.id.user_name);
+			userName.setText(user.getUsername());
+
+			return convertView;
+		}
+
+		@Override
+		public User getItem(int position) {
+			return this.users.get(position);
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			if (convertView == null) {
+				LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+				convertView = inflater.inflate(R.layout.list_item_user, parent, false);
+			}
+
+			User user = getItem(position);
+			TextView userName = (TextView) convertView.findViewById(R.id.user_name);
+			userName.setText(user.getUsername());
 
 			return convertView;
 		}

@@ -23,6 +23,12 @@ public class DataCallbackHandler {
 	public void onBoxStatusSuccess(ArrayList<Box> boxes) {
 	};
 
+	public void onBoxSelfStatusSuccess(Box box) {
+	};
+
+	public void onUserListSuccess(ArrayList<User> users) {
+	};
+
 	public void onReservationSuccess() {
 	};
 

@@ -25,12 +25,6 @@ public class SquirrelBoxJsonResponseHandler extends JsonHttpResponseHandler {
 		this.context = context;
 	}
 
-	public SquirrelBoxJsonResponseHandler(Context context, DataCallbackHandler dataHandler, String parentObject) {
-		this.dataHandler = dataHandler;
-		this.context = context;
-		this.parentObject = parentObject;
-	}
-
 	@Override
 	public void onSuccess(JSONObject rawResponse) {
 		try {
