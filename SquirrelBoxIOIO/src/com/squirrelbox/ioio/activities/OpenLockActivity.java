@@ -36,42 +36,32 @@ public class OpenLockActivity extends IOIOActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.i("OpenLock", "OnCreate");
 		setContentView(R.layout.open_lock);
 		message = (TextView)findViewById(R.id.countdown_status);
 		
-		Handler handler = new Handler();
-		handler.post(new Runnable() {
-
-			@Override
-			public void run() {
-				Log.i("handler", "run");
-				while (timeout>=0) {
-					timeout-=1000;
-					message.setText("Box will lock in "+((timeout/1000)+1)+" seconds");
-					Log.i("handler", "set text complete, timeout is "+timeout);
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-					}
-				}
-				
-				timeup = true;
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-				}
-				/// launch home screen
-				Log.i("OpenLock", "launching main activity");
-				Intent intent = new Intent(OpenLockActivity.this, BoxMainActivity.class);
-				startActivity(intent);
-			
-			}
-		});
+		count_down();
 	}
 
 	
-	
+	private void count_down(){
+		long start = System.currentTimeMillis();
+		long elapsed = 0;
+		while (elapsed < timeout) {
+			message.setText("Box will lock in "+(5-elapsed/1000)+" seconds");
+			//Log.i("handler", "set text complete, elapsed is "+elapsed);
+			elapsed = System.currentTimeMillis()-start;
+		}
+		
+		timeup = true;
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		/// launch home screen
+		Log.i("OpenLock", "launching main activity");
+		Intent intent = new Intent(OpenLockActivity.this, BoxMainActivity.class);
+		startActivity(intent);
+	}
 	
 	/**
 	 * This is the thread on which all the IOIO activity happens. It will be run
@@ -111,8 +101,8 @@ public class OpenLockActivity extends IOIOActivity {
 		 */
 		@Override
 		public void loop() throws ConnectionLostException {
-			led.write(true);
-			lock.write(true);			
+			led.write(!timeup);
+			lock.write(!timeup);			
 			
 			try {
 			Thread.sleep(100);
